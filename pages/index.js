@@ -3,8 +3,22 @@ import Body from "../components/Body";
 import Header from "../components/Header";
 import SmallCard from "../components/SmallCard";
 import styles from "../styles/Home.module.css";
-
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 export default function Home({ exploreData }) {
+  let router = useRouter();
+
+  const logout = () => {
+    sessionStorage.removeItem("Token");
+    router.push("/loggedIn");
+  };
+
+  useEffect(() => {
+    let token = sessionStorage.getItem("Token");
+    if (!token) {
+      router.push("/loggedIn");
+    }
+  }, []);
   return (
     <div className="">
       <Head>
