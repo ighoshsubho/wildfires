@@ -3,9 +3,13 @@ import Loader from '../components/Loader';
 import MapHeader from "../components/MapHeader";
 import Maph from "../components/Map";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/router";
+import { Toaster } from "react-hot-toast";
 function signedUp() {
   const [eventData, setEventData] = useState([])
   const [loading, setLoading] = useState(false)
+
+  let router = useRouter();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -16,7 +20,7 @@ function signedUp() {
 
       setEventData(events)
       setLoading(false)
-      toast.success('Feed Updated!',{
+      toast.success('Done!',{
         id:refreshToast
       })
     }
@@ -33,6 +37,7 @@ function signedUp() {
 
   return (
     <div>
+      <Toaster/>
       <MapHeader/>
       { !loading ? <Maph eventData={eventData} /> : <Loader/> }
     </div>
