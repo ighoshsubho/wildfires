@@ -19,7 +19,7 @@ function signIn() {
             // Signed in
             const user = userCredential.user;
             sessionStorage.setItem('Token', userCredential.user.accessToken)
-            router.push('/')
+            router.push('/signedUp')
           })
           .catch((error) => {
             console.log(error)
@@ -31,7 +31,7 @@ function signIn() {
         let token = sessionStorage.getItem('Token')
 
         if(token){
-            router.push('/')
+            router.push('/signedUp')
         }
     }, [])
 

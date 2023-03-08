@@ -1,7 +1,32 @@
 import React from "react";
 import Image from "next/image";
 import { GlobeAltIcon, SearchIcon } from "@heroicons/react/solid";
-function Header() {
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+// import { useEffect } from "react";
+function Header({propState}) {
+  const [propState1, setPropState1] = useState(propState)
+
+  let router = useRouter();
+
+  const logout = () => {
+    sessionStorage.removeItem("Token");
+    setPropState1(false)
+    router.push("/loggedIn");
+  };
+
+  useEffect(() => {
+    let token = sessionStorage.getItem('Token')
+    if(!token){
+      setPropState1(false)
+    }
+
+    if(token){
+        setPropState1(true)
+        router.push('/')
+    }
+}, [])
+
   return (
     <header className="sticky top-0 z-50 grid grid-cols-3 bg-white shadow-md py-5 md:px-7">
       {/* {left} */}
@@ -26,7 +51,10 @@ function Header() {
 
       {/* {right} */}
       <div className="flex space-x-4 items-center justify-end text-gray-500">
-        <button className="border-2 p-2 rounded-full">Sign up/Sign in</button>
+        {
+          propState1 ? <button onClick={logout} className="border-2 p-2 rounded-full">LogOut</button>
+          :<button onClick={()=>router.push('/loggedIn')} className="border-2 p-2 rounded-full">Sign up/Sign in</button>
+        }
       </div>
     </header>
   );
