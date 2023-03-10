@@ -2,27 +2,39 @@ import Head from "next/head";
 import Body from "../components/Body";
 import Header from "../components/Header";
 import SmallCard from "../components/SmallCard";
-import styles from "../styles/Home.module.css";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 export default function Home({ exploreData }) {
   let router = useRouter();
-  const [propState, setPropState] = useState(false)
-  const [wildfires, setWildfires] = useState({})
+  const [propState, setPropState] = useState(false);
+  const [wildfires, setWildfires] = useState({});
+  const [data1, setData1] = useState(null);
+  const [data2, setData2] = useState(null);
+  const [print, setPrint] = useState(false);
 
   useEffect(() => {
-    let token = sessionStorage.getItem('Token')
-    if(!token){
-      setPropState(false)
+    let token = sessionStorage.getItem("Token");
+    if (!token) {
+      setPropState(false);
     }
 
-    if(token){
-        setPropState(true)
-        router.push('/')
+    if (token) {
+      setPropState(true);
+      router.push("/");
     }
-}, [])
+  }, []);
 
-  console.log(exploreData)
+  console.log(exploreData);
+
+  function getData1(val) {
+    setPrint(false);
+    setData1(val.target.value);
+  }
+
+  function getData2(val) {
+    setPrint(false);
+    setData2(val.target.value);
+  }
 
   return (
     <div className="">
@@ -32,20 +44,40 @@ export default function Home({ exploreData }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header props={propState}/>
+      <Header props={propState} />
       <Body />
       <main className="max-w-7xl mx-auto px-8 sm:px-16">
         <section className="pt-6">
-          <h2 className="text-4xl font-semibold pb-5">Ongoing WildFires..</h2>
-          {/* {pull the locations from API} */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {exploreData?.map(({ id, title }) => (
-              <SmallCard
-                id={id}
-                title={title}
-              />
-            ))}
-          </div>
+          <h4 className="text-2xl font-semibold pb-5">
+            Enter your location by Co-ordinates to know if you are safe or not
+          </h4>
+          <input
+            type="text"
+            onChange={getData1}
+            className="border-2 mb-3 mr-2 p-2 rounded-md"
+            placeholder="longitude"
+          />
+          <input
+            type="text"
+            onChange={getData2}
+            className="border-2 mb-3 mr-2 p-2 rounded-md"
+            placeholder="latitude"
+          />
+          <button
+            onClick={() => setPrint(true)}
+            className="border-2 p-1 rounded-lg bg-gray-400 text-white hover:scale-105"
+          >
+            submit
+          </button>
+          {print ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <h1>{data1}</h1>
+              <h1>{data2}</h1>
+              {exploreData?.map(({ id, title }) => (
+                <SmallCard id={id} title={title} />
+              ))}
+            </div>
+          ) : null}
         </section>
       </main>
     </div>
@@ -53,65 +85,28 @@ export default function Home({ exploreData }) {
 }
 
 export async function getServerSideProps(context) {
-  
-  const res = await fetch('https://eonet.gsfc.nasa.gov/api/v3/events',
-  {
-    next: {revalidate:10},
-  }
+  const res = await fetch(
+    "https://eonet.gsfc.nasa.gov/api/v3/events",
+    {
+      next: { revalidate: 10 },
+    }
   );
-  const { events } = await res.json()
-  let exploreDataWildFires = []
-  let locationInfo = {}
-
+  const { events } = await res.json();
+  let exploreDataWildFires = [];
+  let locationInfo = {};
+  var x = 0;
   events.map((ev, _) => {
+    if (ev.categories[0].id === "wildfires") {
       locationInfo = { id: ev.id, title: ev.title };
       exploreDataWildFires.push(locationInfo);
       console.log(locationInfo);
-   })
-  const exploreData = exploreDataWildFires
-  
-  // const exploreData = [
-  //   {
-  //     img: "https://links.papareact.com/5j2",
-  //     location: "London",
-  //     distance: "45-minute drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/1to",
-  //     location: "Manchester",
-  //     distance: "4.5-hour drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/40m",
-  //     location: "Liverpool",
-  //     distance: "4.5-hour drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/msp",
-  //     location: "York",
-  //     distance: "4-hour drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/2k3",
-  //     location: "Cardiff",
-  //     distance: "45-minute drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/ynx",
-  //     location: "Birkenhead",
-  //     distance: "4.5-hour drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/kji",
-  //     location: "Newquay",
-  //     distance: "6-hour drive",
-  //   },
-  //   {
-  //     img: "https://links.papareact.com/41m",
-  //     location: "Hove",
-  //     distance: "2-hour drive",
-  //   },
-  // ];
+      x = x + 1;
+      console.log(x);
+    } else if (x == 5) {
+      return;
+    }
+  });
+  const exploreData = exploreDataWildFires;
   return {
     props: {
       exploreData,
